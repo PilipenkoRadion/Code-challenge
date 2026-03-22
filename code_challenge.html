@@ -1,0 +1,683 @@
+<!DOCTYPE html>
+<html lang="de">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>RELFUR</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: #f5f5f5;
+            color: #333;
+        }
+
+        /* HEADER */
+        header {
+            background: white;
+            padding: 12px 15px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+            position: sticky;
+            top: 0;
+            z-index: 100;
+        }
+
+        .logo {
+            font-size: 18px;
+            font-weight: 800;
+            color: #0c4b33;
+        }
+
+        .burger-btn {
+            background: none;
+            border: none;
+            font-size: 28px;
+            cursor: pointer;
+            color: #333;
+            padding: 5px;
+        }
+
+
+        .sidebar {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100vh;
+            background: white;
+            transform: translateX(-100%);
+            transition: transform 0.3s ease;
+            z-index: 200;
+            overflow-y: auto;
+        }
+
+        .sidebar.active {
+            transform: translateX(0);
+        }
+
+        .sidebar-header {
+            background: #0c4b33;
+            color: white;
+            padding: 20px;
+            font-weight: 700;
+            font-size: 16px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 28px;
+            cursor: pointer;
+        }
+
+        .sidebar-menu {
+            list-style: none;
+            padding: 10px 0;
+        }
+
+        .sidebar-item {
+            border-bottom: 1px solid #e5e5e5;
+        }
+
+        .sidebar-link {
+            display: block;
+            padding: 15px 20px;
+            color: #333;
+            text-decoration: none;
+            font-size: 14px;
+            font-weight: 500;
+            transition: background 0.2s;
+        }
+
+        .sidebar-link:active {
+            background: #f5f5f5;
+        }
+
+        /* OVERLAY */
+        .overlay {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0, 0, 0, 0.5);
+            opacity: 0;
+            pointer-events: none;
+            transition: opacity 0.3s;
+            z-index: 150;
+        }
+
+        .overlay.active {
+            opacity: 1;
+            pointer-events: all;
+        }
+
+        /* MAIN CONTENT */
+        main {
+            padding: 40px 20px;
+        }
+
+        .container {
+            max-width: 1000px;
+            margin: 0 auto;
+            background: white;
+            padding: 40px;
+            border-radius: 0;
+        }
+
+        h1 {
+            text-align: center;
+            color: #333;
+            font-size: 32px;
+            margin-bottom: 10px;
+            font-weight: 700;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #888;
+            font-size: 14px;
+            margin-bottom: 40px;
+        }
+
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-bottom: 40px;
+            box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
+        }
+
+        thead {
+            background: #f8f9fa;
+        }
+
+        th {
+            padding: 14px;
+            text-align: left;
+            font-weight: 700;
+            font-size: 13px;
+            color: #333;
+            border-bottom: 2px solid #ddd;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+        }
+
+        td {
+            padding: 12px 14px;
+            border-bottom: 1px solid #e5e5e5;
+            font-size: 14px;
+            vertical-align: top;
+            line-height: 1.6;
+        }
+
+        tbody tr:hover {
+            background-color: #f8f9fa;
+        }
+
+        td:first-child {
+            font-weight: 700;
+            color: #000;
+            min-width: 120px;
+        }
+
+        .tag {
+            display: inline-block;
+            padding: 4px 12px;
+            border-radius: 3px;
+            font-size: 11px;
+            font-weight: 700;
+            margin-right: 6px;
+            margin-bottom: 4px;
+            color: white;
+        }
+
+        .tag.django {
+            background: #0c4b33;
+        }
+
+        .tag.python {
+            background: #3776ab;
+        }
+
+        .tag.javascript {
+            background: #f7df1e;
+            color: #000;
+        }
+
+        .tag.html {
+            background: #e34c26;
+        }
+
+        .tag.css {
+            background: #563d7c;
+        }
+
+        .section {
+            margin-top: 50px;
+        }
+
+        .section-title {
+            display: inline-block;
+            background: #0c4b33;
+            color: white;
+            padding: 8px 16px;
+            font-weight: 700;
+            font-size: 15px;
+            letter-spacing: 0.5px;
+            margin: 0;
+            margin-bottom: 20px;
+        }
+
+        .section.languages .section-title {
+            background: #3776ab;
+        }
+
+        .section.frontend .section-title {
+            background: #f7df1e;
+            color: #000;
+        }
+
+        .section.features .section-title {
+            background: #e74c3c;
+        }
+
+        .diagram {
+            background: #f8f9fa;
+            border-left: 4px solid #0c4b33;
+            padding: 20px;
+            font-family: 'Courier New', monospace;
+            font-size: 12px;
+            line-height: 1.8;
+            color: #333;
+            margin: 20px 0;
+            overflow-x: auto;
+        }
+
+        .divider {
+            border-bottom: 2px solid #e0e0e0;
+            margin: 40px 0;
+        }
+
+        .feature-grid {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            gap: 20px;
+            margin-top: 20px;
+        }
+
+        .feature-card {
+            background: #f8f9fa;
+            border-left: 4px solid #0c4b33;
+            padding: 15px;
+            border-radius: 4px;
+        }
+
+        .feature-card h3 {
+            color: #0c4b33;
+            font-size: 13px;
+            font-weight: 700;
+            margin-bottom: 8px;
+        }
+
+        .feature-card p {
+            color: #666;
+            font-size: 13px;
+            line-height: 1.6;
+        }
+
+        @media (max-width: 768px) {
+            main {
+                padding: 20px;
+            }
+
+            .container {
+                padding: 20px;
+            }
+
+            .feature-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- HEADER -->
+    <header>
+        <div class="logo">💻 CodeChallenge</div>
+        <button class="burger-btn" id="burgerBtn">☰</button>
+    </header>
+
+    <!-- SIDEBAR -->
+    <div class="sidebar" id="sidebar">
+        <div class="sidebar-header">
+            MENU
+            <button class="close-btn" id="closeBtn">✕</button>
+        </div>
+        <ul class="sidebar-menu">
+            <li class="sidebar-item">
+                <a href="#backend" class="sidebar-link">🔧 Django Backend</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#languages" class="sidebar-link">🌐 Sprachen</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#frontend" class="sidebar-link">🎨 Frontend</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#database" class="sidebar-link">📚 Aufgaben</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#architecture" class="sidebar-link">🔄 Architektur</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#specifications" class="sidebar-link">📊 Spezifikationen</a>
+            </li>
+            <li class="sidebar-item">
+                <a href="#views" class="sidebar-link">🗺️ Views</a>
+            </li>
+        </ul>
+    </div>
+
+
+    <div class="overlay" id="overlay"></div>
+
+  
+    <main>
+        <div class="container">
+            <h1>💻 CODECHALLENGE</h1>
+            <p class="subtitle">Interaktive Programmierplattform - Technologischer Steck</p>
+            <div class="section" id="backend">
+                <h2 class="section-title">🔧 Django + Python (Backend)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Komponente</th>
+                            <th>Technologie</th>
+                            <th>Funktion</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="tag django">Django</span></td>
+                            <td>Web Framework</td>
+                            <td>MVC-Architektur, Routing, Request-Verarbeitung</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag python">Python 3.8+</span></td>
+                            <td>Runtime</td>
+                            <td>Hauptprogrammiersprache des Backends</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag python">Subprocess</span></td>
+                            <td>Modul</td>
+                            <td>Code-Ausführung in verschiedenen Sprachen</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag python">Tempfile</span></td>
+                            <td>Modul</td>
+                            <td>Temporäre Dateien für Kompilation</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag python">JSON API</span></td>
+                            <td>Datenaustausch</td>
+                            <td>REST API Antworten für Frontend</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+       
+            <div class="section languages" id="languages">
+                <h2 class="section-title">🌐 Unterstützte Programmiersprachen</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Sprache</th>
+                            <th>Compiler/Interpreter</th>
+                            <th>Unterstützung</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="tag python">Python</span></td>
+                            <td>sys.executable (-c)</td>
+                            <td>Eingebauter Interpreter</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag python">JavaScript</span></td>
+                            <td>Node.js</td>
+                            <td>Erfordert Node.js Installation</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag python">Java</span></td>
+                            <td>javac + java</td>
+                            <td>Kompilierung in Temp-Verzeichnis</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag python">C++</span></td>
+                            <td>g++</td>
+                            <td>Cross-Platform Kompilation</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag python">Go</span></td>
+                            <td>go build</td>
+                            <td>Eigener Go Compiler</td>
+                        </tr>
+                    </tbody>
+                </table>
+
+                <div class="feature-grid">
+                    <div class="feature-card">
+                        <h3>Code-Test</h3>
+                        <p>Jede Sprache hat eine eigene Ausführungsfunktion (run_python, run_javascript, etc.)</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Fehlerbehandlung</h3>
+                        <p>Timeout-Abfangen (5 Sek), Kompilerfehler und Runtime-Fehler</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Temp-Dateien</h3>
+                        <p>Erstellung von Temp-Dateien für jede Sprache (JS, Java, C++, Go)</p>
+                    </div>
+                    <div class="feature-card">
+                        <h3>Code-Isolation</h3>
+                        <p>Jeder Prozess läuft isoliert mit max. 5 Sek Timeout</p>
+                    </div>
+                </div>
+            </div>
+
+      
+            <div class="section frontend" id="frontend">
+                <h2 class="section-title">🎨 Frontend (HTML/CSS/JavaScript)</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Technologie</th>
+                            <th>Zweck</th>
+                            <th>Möglichkeiten</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><span class="tag html">HTML5</span></td>
+                            <td>Struktur</td>
+                            <td>Semantisches Markup der Benutzeroberfläche</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag css">CSS3</span></td>
+                            <td>Styling</td>
+                            <td>Dunkles Design, Gradienten, Animationen, Responsivität</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag javascript">Vanilla JS</span></td>
+                            <td>Interaktivität</td>
+                            <td>Formularverarbeitung, Code-Upload, UI-Updates</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag javascript">Fetch API</span></td>
+                            <td>Kommunikation</td>
+                            <td>POST-Anfragen an Backend</td>
+                        </tr>
+                        <tr>
+                            <td><span class="tag javascript">Animationen</span></td>
+                            <td>UX-Effekte</td>
+                            <td>Sanfte Übergänge und visuelle Effekte</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="section features" id="database">
+                <h2 class="section-title">📚 Aufgabendatenbank und Struktur</h2>
+                <table>
+                    <thead>
+                        <tr>
+                            <th>Komponente</th>
+                            <th>Beschreibung</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td>CHALLENGES</td>
+                            <td>Wörterbuch mit 30+ Aufgaben</td>
+                            <td>ID, Titel, Beschreibung, Schwierigkeit, Kategorie, Punkte, Templates, Test Cases</td>
+                        </tr>
+                        <tr>
+                            <td>Schwierigkeitsgrade</td>
+                            <td>Easy, Medium, Hard</td>
+                            <td>10-50 Punkte je nach Schwierigkeitsgrad</td>
+                        </tr>
+                        <tr>
+                            <td>Kategorien</td>
+                            <td>Grundlagen, Strings, Arrays, Algorithmen, etc.</td>
+                            <td>Aufgaben nach Themen gruppieren</td>
+                        </tr>
+                        <tr>
+                            <td>Test Cases</td>
+                            <td>Ein- und Ausgabedaten</td>
+                            <td>Überprüfung der Lösungskorrektheit</td>
+                        </tr>
+                        <tr>
+                            <td>Code Templates</td>
+                            <td>Vorgefertigte Templates für jede Sprache</td>
+                            <td>Spart Zeit beim Schreiben von Boilerplate-Code</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+
+            <div class="divider"></div>
+            <h2 class="section-title" id="architecture">🔄 Systemarchitektur</h2>
+            <div class="diagram">
+                Client (HTML/CSS/JS)
+                ↓ POST-Anfrage mit Code
+                Frontend (/level/) ← Django Views
+                ↓
+                Django Views (select_level, send_task)
+                ├─ get_challenge() → Aufgabe abrufen
+                ├─ run_and_test() → Code testen
+                └─ run_[language]() → In gewünschter Sprache ausführen
+                ↓
+                Subprocess (Code-Ausführung)
+                ├─ Python: sys.executable -c
+                ├─ JavaScript: node (Temp-Datei)
+                ├─ Java: javac + java (Temp-Verzeichnis)
+                ├─ C++: g++ (Temp-Verzeichnis)
+                └─ Go: go build (Temp-Verzeichnis)
+                ↓
+                Test Cases Validation
+                ├─ Output mit expected_output vergleichen
+                ├─ Alle Tests überprüfen
+                └─ Ergebnisse zurückgeben
+                ↓
+                Response JSON
+                └─ all_passed, passed/total, Ergebnisse jedes Tests
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- SPECIFICATIONS -->
+            <h2 class="section-title" id="specifications">📊 Technische Spezifikationen</h2>
+            <div class="feature-grid">
+                <div class="feature-card">
+                    <h3>⏱️ Timeouts</h3>
+                    <p>
+                        • Kompilation: 10 Sek<br>
+                        • Ausführung: 5 Sek<br>
+                        • Request-Verarbeitung: asynchron
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <h3>📋 Aufgaben</h3>
+                    <p>
+                        • Easy: 10 Aufgaben (10 Punkte)<br>
+                        • Medium: 10 Aufgaben (20-25 Punkte)<br>
+                        • Hard: 10 Aufgaben (30-50 Punkte)
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <h3>🛡️ Sicherheit</h3>
+                    <p>
+                        • Verwendung von subprocess.run<br>
+                        • Temp-Verzeichnisse zur Isolation<br>
+                        • Automatisches Löschen von Dateien
+                    </p>
+                </div>
+                <div class="feature-card">
+                    <h3>🔤 Sprachen</h3>
+                    <p>
+                        • Python 3.8+<br>
+                        • JavaScript (Node.js)<br>
+                        • Java, C++, Go
+                    </p>
+                </div>
+            </div>
+
+            <div class="divider"></div>
+
+            <!-- VIEWS & URLS -->
+            <h2 class="section-title" id="views">🗺️ Views und Routen</h2>
+            <table>
+                <thead>
+                    <tr>
+                        <th>View/URL</th>
+                        <th>Methode</th>
+                        <th>Funktion</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr>
+                        <td>index()</td>
+                        <td>GET</td>
+                        <td>Startseite mit Gradient und Information</td>
+                    </tr>
+                    <tr>
+                        <td>select_level()</td>
+                        <td>POST</td>
+                        <td>Auswahl des Schwierigkeitsgrades (easy, medium, hard)</td>
+                    </tr>
+                    <tr>
+                        <td>select_language()</td>
+                        <td>POST</td>
+                        <td>Auswahl der Programmiersprache</td>
+                    </tr>
+                    <tr>
+                        <td>main_task_page()</td>
+                        <td>GET</td>
+                        <td>Hauptseite mit Code-Editor und Testung</td>
+                    </tr>
+                    <tr>
+                        <td>send_task()</td>
+                        <td>POST</td>
+                        <td>Code-Upload zum Testen, Validierung, Test-Ausführung</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </main>
+
+    <script>
+        const burgerBtn = document.getElementById('burgerBtn');
+        const closeBtn = document.getElementById('closeBtn');
+        const sidebar = document.getElementById('sidebar');
+        const overlay = document.getElementById('overlay');
+
+        burgerBtn.addEventListener('click', () => {
+            sidebar.classList.add('active');
+            overlay.classList.add('active');
+        });
+
+        closeBtn.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        overlay.addEventListener('click', () => {
+            sidebar.classList.remove('active');
+            overlay.classList.remove('active');
+        });
+
+        document.querySelectorAll('.sidebar-link').forEach(link => {
+            link.addEventListener('click', () => {
+                sidebar.classList.remove('active');
+                overlay.classList.remove('active');
+            });
+        });
+    </script>
+</body>
+
+</html>
